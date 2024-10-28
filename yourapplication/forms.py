@@ -2,14 +2,16 @@
 
 from flask_wtf import FlaskForm
 from wtforms import StringField, IntegerField, SelectField, DateField, SubmitField
-from wtforms.validators import DataRequired, Length, Regexp, NumberRange
+from wtforms.validators import DataRequired, Length, Regexp, NumberRange, Optional
 from config import Config
 
 class ReservationForm(FlaskForm):
     yuyue_name = StringField('姓名（留空则随机生成）：', validators=[
+        Optional(),
         Length(max=50, message="姓名长度不能超过50个字符")
     ])
     yuyue_hp = StringField('联系电话（留空则随机生成）：', validators=[
+        Optional(),
         Length(max=20, message="电话长度不能超过20个字符"),
         Regexp(r'^\d{11}$', message="请输入有效的11位电话号码")
     ])

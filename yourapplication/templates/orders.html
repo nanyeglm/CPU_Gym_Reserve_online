@@ -9,11 +9,24 @@
     <!-- 筛选表单 -->
     <form method="get" action="{{ url_for('main.view_orders') }}" class="form-inline mb-4">
         <div class="form-group mr-2">
+            <label for="venue_group" class="mr-2">预约场馆分组:</label>
+            <select name="venue_group" id="venue_group" class="form-control">
+                <option value="">全部分组</option>
+                {% for group in all_venue_groups %}
+                <option value="{{ group }}" {% if group==selected_group %}selected{% endif %}>{{ group }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group mr-2">
             <label for="venue" class="mr-2">预约场馆:</label>
             <select name="venue" id="venue" class="form-control">
-                {% for venue in all_venues %}
+                <option value="">全部场馆</option>
+                <!-- 动态加载场馆选项 -->
+                {% if selected_group and venue_groups[selected_group] %}
+                {% for venue in venue_groups[selected_group] %}
                 <option value="{{ venue }}" {% if venue==selected_venue %}selected{% endif %}>{{ venue }}</option>
                 {% endfor %}
+                {% endif %}
             </select>
         </div>
         <div class="form-group mr-2">
@@ -105,16 +118,35 @@
         <a href="{{ url_for('main.index') }}" class="btn btn-success">返回首页</a>
     </div>
 </div>
-{% endblock %}
 
-{% block scripts %}
+<!-- 初始化 DataTables -->
 <script>
+    document.getElementById('venue_group').addEventListener('change', function () {
+        var group = this.value;
+        var venueSelect = document.getElementById('venue');
+        venueSelect.innerHTML = '<option value="">全部场馆</option>'; // 重置选项
+
+        {% for group_name, venues in venue_groups.items() %}
+        if (group === "{{ group_name }}") {
+            {% for venue in venues %}
+            var option = document.createElement('option');
+            option.value = "{{ venue }}";
+            option.text = "{{ venue }}";
+            {% if venue == selected_venue %}
+            option.selected = true;
+            {% endif %}
+            venueSelect.appendChild(option);
+            {% endfor %}
+        }
+        {% endfor %}
+    });
+
     $(document).ready(function () {
         $('#orders-table').DataTable({
             "ordering": false, // 禁用排序
             "paging": false, // 启用分页
             "searching": false, // 禁用搜索
-            "info": true, // 显示信息
+            "info": false, // 显示信息
             "lengthChange": false // 禁用改变分页数量
         });
 
@@ -122,7 +154,7 @@
             "ordering": false, // 禁用排序
             "paging": false, // 启用分页
             "searching": false, // 禁用搜索
-            "info": true, // 显示信息
+            "info": false, // 显示信息
             "lengthChange": false // 禁用改变分页数量
         });
     });

@@ -9,6 +9,17 @@ from threading import Thread
 from flask import current_app
 from yourapplication.models import db, Order
 from sqlalchemy.exc import SQLAlchemyError
+from faker import Faker
+import random
+
+fake = Faker("zh_CN")
+
+
+def generate_fake_phone_number():
+    """
+    生成一个长度为11位的随机电话号码
+    """
+    return ''.join([str(random.randint(0, 9)) for _ in range(11)])
 
 # 启动后台更新任务
 def start_background_tasks(app):
