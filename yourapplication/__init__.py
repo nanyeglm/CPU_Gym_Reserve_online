@@ -5,6 +5,7 @@ from flask_sqlalchemy import SQLAlchemy
 from config import Config
 import os
 import logging
+from logging.handlers import RotatingFileHandler, TimedRotatingFileHandler
 
 db = SQLAlchemy()
 
@@ -41,7 +42,12 @@ def configure_logging(app):
     # 确保日志目录存在
     os.makedirs(app.config['LOG_DIR'], exist_ok=True)
 
-    handler = logging.FileHandler(app.config['LOG_FILE'], encoding='UTF-8')
+    # 设置日志文件路径
+    log_file_path = app.config['LOG_FILE']
+
+    # 配置基于文件大小的轮转日志
+    # maxBytes：日志文件的最大字节数，backupCount：保留的旧日志文件个数
+    handler = RotatingFileHandler(log_file_path, maxBytes=5 * 1024 * 1024, backupCount=5)  # 5MB，保留5个备份
     formatter = logging.Formatter('%(asctime)s %(levelname)s:%(message)s')
     handler.setFormatter(formatter)
     handler.setLevel(logging.INFO)

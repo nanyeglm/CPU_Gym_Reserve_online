@@ -3,22 +3,28 @@
 ## 项目目录结构
 ```
 project/
-├── app.py               # Flask 应用程序的入口
-├── models.py            # 数据库模型和初始化
-├── utils.py             # 工具函数，如异步请求等
-├── templates/
-│   ├── base.html
-│   ├── index.html
-│   ├── orders.html
-│   └── result.html
-├── static/
-│   └── css/
-│       └── style.css
-├── data/
-│   ├── orders.db        # 订单数据库
-│   └── reservations.db  # 用户提交的预约数据库
+├── app.py
+├── config.py
+├── requirements.txt
+├── run.py
 ├── logs/
-│   └── app.log          # 日志文件
+│   └── app.log
+├── data/
+│   ├── app.db
+├── yourapplication/
+│   ├── __init__.py
+│   ├── models.py
+│   ├── views.py
+│   ├── utils.py
+│   ├── forms.py
+│   └── templates/
+│       ├── base.html
+│       ├── index.html
+│       ├── orders.html
+│       └── result.html
+│   └── static/
+│       └── css/
+│           └── style.cs
 ```
 
 ## 项目介绍
