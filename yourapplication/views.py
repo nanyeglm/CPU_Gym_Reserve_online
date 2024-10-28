@@ -9,7 +9,8 @@ import re
 import json
 from datetime import datetime
 from sqlalchemy.exc import SQLAlchemyError
-from .utils import generate_fake_phone_number  # 导入自定义的电话生成函数
+
+import time  # 导入 time 库
 
 main_bp = Blueprint('main', __name__, template_folder='templates')
 fake = Faker("zh_CN")
@@ -21,7 +22,7 @@ def index():
         try:
             # 获取表单数据
             yuyue_name = form.yuyue_name.data.strip() or fake.name()
-            yuyue_hp = form.yuyue_hp.data.strip() or generate_fake_phone_number()
+            yuyue_hp = form.yuyue_hp.data.strip() or fake.phone_number()
             yuyue_time = str(form.yuyue_time.data)
             yuyue_riqi = form.yuyue_riqi.data.strftime('%Y-%m-%d')
             yuyue_changguan = form.yuyue_changguan.data
@@ -29,20 +30,26 @@ def index():
             # 根据姓名获取对应的 openid
             yuyue_openid = current_app.config['NAME_OPENID_MAP'].get(yuyue_name, current_app.config['DEFAULT_OPENID'])
 
-            # 获取 yyp_pass
+            # 获取 yyp_pass，使用重试机制
             pass_url = f"http://cgyytyb.cpu.edu.cn/wap/yuyue?id={yuyue_changguan}"
-            try:
-                pass_response = requests.get(pass_url, headers=current_app.config['HEADERS'], timeout=10)
-                pass_response.raise_for_status()
-                pass_page_content = pass_response.text
-            except requests.RequestException as e:
-                current_app.logger.error(f"获取 yyp_pass 时出错：{e}")
-                flash("无法获取预约密钥，请稍后再试。", "danger")
-                return redirect(url_for('main.index'))
+            retries = 5
+            delay = 0.2
+            yyp_pass = None
+            for attempt in range(retries):
+                try:
+                    response = requests.get(pass_url, headers=current_app.config['HEADERS'], timeout=10)
+                    response.raise_for_status()
+                    yyp_pass = extract_yyp_pass(response.text)
+                    if yyp_pass:
+                        break  # 成功获取到 yyp_pass，跳出循环
+                    else:
+                        current_app.logger.warning(f"获取 yyp_pass 失败, 重试 {attempt + 1}/{retries}")
+                except requests.RequestException as e:
+                    current_app.logger.error(f"获取 yyp_pass 请求出错: {e}")
+                time.sleep(delay)  # 等待指定时间后再重试
 
-            yyp_pass = extract_yyp_pass(pass_page_content)
             if not yyp_pass:
-                flash("未能获取 yyp_pass，无法预约", "danger")
+                flash("无法获取预约密钥，请稍后再试。", "danger")
                 return redirect(url_for('main.index'))
 
             # 构建预约数据
@@ -120,6 +127,7 @@ def index():
                     flash(error, "danger")
     return render_template('index.html', form=form)
 
+# 提取 yyp_pass 的辅助函数
 def extract_yyp_pass(content):
     patterns = [
         r"post\.yyp_pass=['\"](.*?)['\"]",
