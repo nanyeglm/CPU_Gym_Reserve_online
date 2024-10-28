@@ -2,13 +2,11 @@
 
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
 from config import Config
 import os
 import logging
 
 db = SQLAlchemy()
-migrate = Migrate()
 
 def create_app(config_class=Config):
     app = Flask(__name__)
@@ -16,7 +14,6 @@ def create_app(config_class=Config):
 
     # 初始化数据库
     db.init_app(app)
-    migrate.init_app(app, db)
 
     # 注册蓝图
     from yourapplication.views import main_bp
@@ -25,8 +22,14 @@ def create_app(config_class=Config):
     # 配置日志
     configure_logging(app)
 
-    # 创建数据目录
+    # 创建数据和日志目录
     os.makedirs(app.config['DATA_DIR'], exist_ok=True)
+    os.makedirs(app.config['LOG_DIR'], exist_ok=True)
+
+    # 创建数据库表
+    with app.app_context():
+        db.create_all()
+        app.logger.info("数据库表已创建")
 
     # 启动后台线程
     from yourapplication.utils import start_background_tasks

@@ -1,4 +1,4 @@
-<!-- templates/orders.html -->
+<!-- yourapplication/templates/orders.html -->
 
 {% extends 'base.html' %}
 
@@ -7,7 +7,7 @@
     <h1 class="text-center mt-4 mb-4">预约成功的订单</h1>
 
     <!-- 筛选表单 -->
-    <form method="get" action="{{ url_for('view_orders') }}" class="form-inline mb-4">
+    <form method="get" action="{{ url_for('main.view_orders') }}" class="form-inline mb-4">
         <div class="form-group mr-2">
             <label for="venue" class="mr-2">预约场馆:</label>
             <select name="venue" id="venue" class="form-control">
@@ -54,7 +54,7 @@
                     <td>{{ order.date }}</td>
                     <td>{{ order.time }}</td>
                     <td>
-                        <form method="POST" action="{{ url_for('cancel_order', yuyue_id=order.yuyue_id) }}"
+                        <form method="POST" action="{{ url_for('main.cancel_order', yuyue_id=order.yuyue_id) }}"
                             onsubmit="return confirm('确定要取消订单 {{ order.yuyue_id }} 吗？');">
                             <button type="submit" class="btn btn-danger btn-sm">取消订单</button>
                         </form>
@@ -102,16 +102,17 @@
     </div>
 
     <div class="text-center mt-4">
-        <a href="{{ url_for('index') }}" class="btn btn-success">返回首页</a>
+        <a href="{{ url_for('main.index') }}" class="btn btn-success">返回首页</a>
     </div>
 </div>
+{% endblock %}
 
-<!-- 初始化 DataTables -->
+{% block scripts %}
 <script>
     $(document).ready(function () {
         $('#orders-table').DataTable({
             "ordering": false, // 禁用排序
-            "paging": true, // 启用分页
+            "paging": false, // 启用分页
             "searching": false, // 禁用搜索
             "info": true, // 显示信息
             "lengthChange": false // 禁用改变分页数量
@@ -119,7 +120,7 @@
 
         $('#reservations-table').DataTable({
             "ordering": false, // 禁用排序
-            "paging": true, // 启用分页
+            "paging": false, // 启用分页
             "searching": false, // 禁用搜索
             "info": true, // 显示信息
             "lengthChange": false // 禁用改变分页数量
