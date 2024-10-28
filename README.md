@@ -41,5 +41,20 @@ project/
 
 4. orders.html页面筛选显示功能,用户填写完表单,点击"提交预约"之后,把提交的订单详情保存到一个新的数据库
 
-   
+### 运行项目
 
+1. 安装依赖包
+```
+Flask
+Flask-WTF
+Flask-SQLAlchemy
+Flask-Migrate
+aiohttp
+Faker
+beautifulsoup4
+WTForms
+```
+2. 运行主程序```run.py```,```config.py```中的参数可自定义
+3. 访问```127.0.0.1:18888```,可自行定义端口
+4. 填写表单,提交预约
+5. 点击```查看订单```可查看系统中当前存在预约成功的订单
