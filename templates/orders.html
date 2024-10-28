@@ -1,0 +1,129 @@
+<!-- templates/orders.html -->
+
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h1 class="text-center mt-4 mb-4">预约成功的订单</h1>
+
+    <!-- 筛选表单 -->
+    <form method="get" action="{{ url_for('view_orders') }}" class="form-inline mb-4">
+        <div class="form-group mr-2">
+            <label for="venue" class="mr-2">预约场馆:</label>
+            <select name="venue" id="venue" class="form-control">
+                {% for venue in all_venues %}
+                <option value="{{ venue }}" {% if venue==selected_venue %}selected{% endif %}>{{ venue }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group mr-2">
+            <label for="date" class="mr-2">预约日期:</label>
+            <input type="date" name="date" id="date" class="form-control" value="{{ selected_date }}">
+        </div>
+        <div class="form-group mr-2">
+            <label for="time" class="mr-2">预约时间:</label>
+            <input type="text" name="time" id="time" class="form-control" placeholder="如: 19:00"
+                value="{{ selected_time }}">
+        </div>
+        <button type="submit" class="btn btn-primary">筛选</button>
+    </form>
+
+    <!-- 预约成功的订单 -->
+    <div class="table-responsive">
+        {% if orders %}
+        <h2 class="mt-4 mb-2">预约成功的订单</h2>
+        <table id="orders-table" class="table table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th>订单编号</th>
+                    <th>预约场馆</th>
+                    <th>预约姓名</th>
+                    <th>预约电话</th>
+                    <th>预约日期</th>
+                    <th>预约时间</th>
+                    <th>操作</th> <!-- 新增“操作”列 -->
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td>{{ order.yuyue_id }}</td>
+                    <td>{{ order.venue }}</td>
+                    <td>{{ order.name }}</td>
+                    <td>{{ order.phone }}</td>
+                    <td>{{ order.date }}</td>
+                    <td>{{ order.time }}</td>
+                    <td>
+                        <form method="POST" action="{{ url_for('cancel_order', yuyue_id=order.yuyue_id) }}"
+                            onsubmit="return confirm('确定要取消订单 {{ order.yuyue_id }} 吗？');">
+                            <button type="submit" class="btn btn-danger btn-sm">取消订单</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="text-center">暂无预约成功的订单。</p>
+        {% endif %}
+    </div>
+
+    <!-- 用户提交的预约 -->
+    <div class="table-responsive mt-5">
+        {% if reservations %}
+        <h2 class="mt-4 mb-2">用户提交的预约</h2>
+        <table id="reservations-table" class="table table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th>订单编号</th>
+                    <th>预约场馆</th>
+                    <th>预约姓名</th>
+                    <th>预约电话</th>
+                    <th>预约日期</th>
+                    <th>预约时间</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for res in reservations %}
+                <tr>
+                    <td>{{ res.yuyue_id }}</td>
+                    <td>{{ res.venue }}</td>
+                    <td>{{ res.name }}</td>
+                    <td>{{ res.phone }}</td>
+                    <td>{{ res.date }}</td>
+                    <td>{{ res.time }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="text-center">暂无用户提交的预约。</p>
+        {% endif %}
+    </div>
+
+    <div class="text-center mt-4">
+        <a href="{{ url_for('index') }}" class="btn btn-success">返回首页</a>
+    </div>
+</div>
+
+<!-- 初始化 DataTables -->
+<script>
+    $(document).ready(function () {
+        $('#orders-table').DataTable({
+            "ordering": false, // 禁用排序
+            "paging": true, // 启用分页
+            "searching": false, // 禁用搜索
+            "info": true, // 显示信息
+            "lengthChange": false // 禁用改变分页数量
+        });
+
+        $('#reservations-table').DataTable({
+            "ordering": false, // 禁用排序
+            "paging": true, // 启用分页
+            "searching": false, // 禁用搜索
+            "info": true, // 显示信息
+            "lengthChange": false // 禁用改变分页数量
+        });
+    });
+</script>
+{% endblock %}

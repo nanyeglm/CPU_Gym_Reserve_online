@@ -1,0 +1,51 @@
+<!-- templates/index.html -->
+
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="text-center mt-4 mb-4">中国药科大学羽毛球场馆预约系统</h1>
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-10 col-lg-8">
+            <form action="{{ url_for('main.index') }}" method="post" class="mt-4">
+                {{ form.hidden_tag() }}
+                <!-- 姓名 -->
+                <div class="form-group">
+                    {{ form.yuyue_name.label }}
+                    {{ form.yuyue_name(class="form-control", placeholder="请输入姓名") }}
+                </div>
+
+                <!-- 联系电话 -->
+                <div class="form-group">
+                    {{ form.yuyue_hp.label }}
+                    {{ form.yuyue_hp(class="form-control", placeholder="请输入联系电话") }}
+                </div>
+
+                <!-- 开始时间 -->
+                <div class="form-group">
+                    {{ form.yuyue_time.label }}
+                    {{ form.yuyue_time(class="form-control", placeholder="请输入开始时间") }}
+                </div>
+
+                <!-- 预约日期 -->
+                <div class="form-group">
+                    {{ form.yuyue_riqi.label }}
+                    {{ form.yuyue_riqi(class="form-control") }}
+                </div>
+
+                <!-- 场馆选择 -->
+                <div class="form-group">
+                    {{ form.yuyue_changguan.label }}
+                    {{ form.yuyue_changguan(class="form-control") }}
+                </div>
+
+                <!-- 提交按钮 -->
+                {{ form.submit(class="btn btn-primary btn-block") }}
+
+                <!-- 查看订单按钮 -->
+                <a href="{{ url_for('main.view_orders') }}" class="btn btn-secondary btn-block mt-2">查看订单</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,95 @@
+/* static/css/style.css */
+
+/* 调整容器的最大宽度以适应更大屏幕 */
+.container-fluid {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* 全局字体和背景 */
+body {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    background-color: #f8f9fa;
+}
+
+/* 卡片阴影 */
+.card {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 表单标签字体加粗 */
+label {
+    font-weight: 600;
+}
+
+/* 提交按钮悬停效果 */
+.btn-primary:hover {
+    background-color: #0056b3;
+    border-color: #004085;
+}
+
+/* 调整标题字体大小 */
+h1 {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+}
+
+/* 使表格单元格内容不换行并自动调整列宽 */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: auto;
+    /* 自动布局，允许根据内容调整列宽 */
+}
+
+table th,
+table td {
+    padding: 12px;
+    border: 1px solid #dee2e6;
+    text-align: left;
+    vertical-align: middle;
+    white-space: nowrap;
+    /* 防止内容换行 */
+}
+
+table th {
+    background-color: #f8f9fa;
+    font-weight: bold;
+}
+
+/* 移除内容截断，确保内容完整显示 */
+table td {
+    max-width: none;
+    /* 移除最大宽度限制 */
+    overflow: visible;
+    /* 显示溢出内容 */
+    text-overflow: clip;
+    /* 不显示省略号 */
+}
+
+/* 鼠标悬停高亮表格行 */
+table tbody tr:hover {
+    background-color: #f1f1f1;
+}
+
+/* 确保表格在小屏幕上横向滚动 */
+.table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* 优化按钮样式 */
+.btn-block {
+    display: block;
+    width: 100%;
+}
+
+@media (max-width: 768px) {
+
+    /* 在较小屏幕上，调整表格字体大小 */
+    table th,
+    table td {
+        padding: 8px;
+        font-size: 14px;
+    }
+}

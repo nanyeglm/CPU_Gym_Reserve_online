@@ -1,0 +1,28 @@
+<!-- templates/result.html -->
+
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h1 class="text-center mt-4 mb-4">预约结果</h1>
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">您的预约信息：</h5>
+            <p class="card-text"><strong>姓名：</strong>{{ yuyue_name }}</p>
+            <p class="card-text"><strong>联系电话：</strong>{{ yuyue_hp }}</p>
+            <p class="card-text"><strong>开始时间：</strong>{{ yuyue_time }}</p>
+            <p class="card-text"><strong>预约日期：</strong>{{ yuyue_riqi }}</p>
+            <p class="card-text"><strong>场馆：</strong>{{ yuyue_changguan }}</p>
+        </div>
+    </div>
+    <div class="card mt-4">
+        <div class="card-body">
+            <h5 class="card-title">服务器返回的信息：</h5>
+            <pre>{{ server_response }}</pre>
+        </div>
+    </div>
+    <div class="text-center mt-4">
+        <a href="{{ url_for('index') }}" class="btn btn-success">返回首页</a>
+    </div>
+</div>
+{% endblock %}

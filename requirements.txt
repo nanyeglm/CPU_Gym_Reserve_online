@@ -1,0 +1,8 @@
+Flask
+Flask-WTF
+Flask-SQLAlchemy
+Flask-Migrate
+aiohttp
+Faker
+beautifulsoup4
+WTForms
