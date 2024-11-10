@@ -3,14 +3,14 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app
 from .forms import ReservationForm
 from .models import db, Order, Reservation
+from .utils import update_database_with_range  # 导入新的更新函数
 from faker import Faker
 import requests
 import re
 import json
 from datetime import datetime
 from sqlalchemy.exc import SQLAlchemyError
-
-import time  # 导入 time 库
+import time
 
 main_bp = Blueprint('main', __name__, template_folder='templates')
 fake = Faker("zh_CN")
@@ -31,7 +31,7 @@ def index():
             yuyue_openid = current_app.config['NAME_OPENID_MAP'].get(yuyue_name, current_app.config['DEFAULT_OPENID'])
 
             # 获取 yyp_pass，使用重试机制
-            pass_url = f"http://cgyytyb.cpu.edu.cn/wap/yuyue?id={yuyue_changguan}"
+            pass_url = f"https://cgyytyb.cpu.edu.cn/wap/yuyue?id={yuyue_changguan}"
             retries = 5
             delay = 0.2
             yyp_pass = None
@@ -70,7 +70,7 @@ def index():
             }
 
             # 发送预约请求
-            reserve_url = "http://cgyytyb.cpu.edu.cn/inc/ajax/save/saveYuyue"
+            reserve_url = "https://cgyytyb.cpu.edu.cn/inc/ajax/save/saveYuyue"
             try:
                 response = requests.post(reserve_url, headers=current_app.config['HEADERS'], data=data, timeout=10)
                 response.raise_for_status()
@@ -127,22 +127,41 @@ def index():
                     flash(error, "danger")
     return render_template('index.html', form=form)
 
-# 提取 yyp_pass 的辅助函数
-def extract_yyp_pass(content):
-    patterns = [
-        r"post\.yyp_pass=['\"](.*?)['\"]",
-        r"yyp_pass\s*=\s*['\"](.*?)['\"]",
-        r"name=['\"]yyp_pass['\"]\s*value=['\"](.*?)['\"]",
-    ]
-    for pattern in patterns:
-        match = re.search(pattern, content)
-        if match:
-            return match.group(1)
-    return None
+# 新增更新数据库的路由
+@main_bp.route('/update_orders', methods=['POST'])
+def update_orders():
+    start_id = request.form.get('start_id')
+    end_id = request.form.get('end_id')
+    if not start_id or not end_id:
+        flash("请输入起始和结束的预约ID。", "danger")
+        return redirect(url_for('main.index'))
+
+    try:
+        start_id = int(start_id)
+        end_id = int(end_id)
+        if start_id > end_id:
+            flash("起始ID不能大于结束ID。", "danger")
+            return redirect(url_for('main.index'))
+        if end_id - start_id > 1000:
+            flash("一次最多只能查询1000个预约ID的范围。", "danger")
+            return redirect(url_for('main.index'))
+    except ValueError:
+        flash("请输入有效的数字作为预约ID。", "danger")
+        return redirect(url_for('main.index'))
+
+    try:
+        # 调用 utils.py 中的函数更新数据库
+        update_database_with_range(start_id, end_id)
+        flash(f"数据库已更新，范围：{start_id} - {end_id}", "success")
+    except Exception as e:
+        current_app.logger.error(f"更新数据库时出错：{e}")
+        flash("更新数据库时发生错误，请查看日志。", "danger")
+
+    return redirect(url_for('main.index'))
 
 @main_bp.route('/orders')
 def view_orders():
-    # 定义场馆分组
+    # 定义场馆分组（保持不变）
     venue_groups = {
         '体育馆三楼羽毛球馆': [
             '体育馆三楼羽毛球馆1号场',
@@ -302,11 +321,18 @@ def view_orders():
                            all_venue_groups=all_venue_groups,
                            venue_groups=venue_groups)
 
+
 @main_bp.route('/cancel_order/<int:yuyue_id>', methods=['POST'])
 def cancel_order(yuyue_id):
+    # 获取筛选参数
+    venue_group = request.form.get('venue_group', '')
+    venue = request.form.get('venue', '')
+    date = request.form.get('date', '')
+    time = request.form.get('time', '')
+
     try:
         # 取消订单的请求 URL
-        cancel_url = "http://cgyytyb.cpu.edu.cn/inc/ajax/save/tuikuan"
+        cancel_url = "https://cgyytyb.cpu.edu.cn/inc/ajax/save/tuikuan"
 
         # 取消订单的数据
         data = {
@@ -323,16 +349,15 @@ def cancel_order(yuyue_id):
         # 解析响应
         json_data = response.json()
         if json_data.get('Code') == '0':
-            # 取消成功，删除订单和相关预约
+            # 取消成功，删除订单
             order = Order.query.filter_by(yuyue_id=yuyue_id).first()
             if order:
                 db.session.delete(order)
-            reservation = Reservation.query.filter_by(yuyue_id=yuyue_id).first()
-            if reservation:
-                db.session.delete(reservation)
-            db.session.commit()
-            flash("订单已成功取消。", "success")
-            current_app.logger.info(f"取消订单 {yuyue_id}")
+                db.session.commit()
+                flash("订单已成功取消。", "success")
+                current_app.logger.info(f"取消订单 {yuyue_id}")
+            else:
+                flash("订单未找到。", "warning")
         else:
             # 取消失败
             msg = json_data.get('Msg', '取消订单失败。')
@@ -350,5 +375,9 @@ def cancel_order(yuyue_id):
         flash("取消订单时数据库错误。", "danger")
         current_app.logger.error(f"取消订单 {yuyue_id} 时数据库错误：{e}")
 
-    return redirect(url_for('main.view_orders'))
-
+    # 重定向回订单页面，并包含筛选参数
+    return redirect(url_for('main.view_orders',
+                            venue_group=venue_group,
+                            venue=venue,
+                            date=date,
+                            time=time))

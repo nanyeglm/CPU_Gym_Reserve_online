@@ -7,6 +7,7 @@
     <h1 class="text-center mt-4 mb-4">中国药科大学羽毛球场馆预约系统<br>(系统仅在中午12点-24点开放,其他时间无法提交预约)</h1>
     <div class="row justify-content-center">
         <div class="col-12 col-md-10 col-lg-8">
+            <!-- 预约表单 -->
             <form action="{{ url_for('main.index') }}" method="post" class="mt-4">
                 {{ form.hidden_tag() }}
                 <!-- 姓名 -->
@@ -45,6 +46,21 @@
                 <!-- 查看订单按钮 -->
                 <a href="{{ url_for('main.view_orders') }}" class="btn btn-secondary btn-block mt-2">查看订单</a>
             </form>
+
+            <!-- 新增的更新数据库表单 -->
+            <form action="{{ url_for('main.update_orders') }}" method="post" class="mt-5">
+                <h2 class="text-center">更新数据库</h2>
+                <div class="form-group">
+                    <label for="start_id">起始预约ID：</label>
+                    <input type="number" class="form-control" id="start_id" name="start_id" placeholder="请输入起始预约ID">
+                </div>
+                <div class="form-group">
+                    <label for="end_id">结束预约ID：</label>
+                    <input type="number" class="form-control" id="end_id" name="end_id" placeholder="请输入结束预约ID">
+                </div>
+                <button type="submit" class="btn btn-info btn-block">更新数据库</button>
+            </form>
+
         </div>
     </div>
 </div>

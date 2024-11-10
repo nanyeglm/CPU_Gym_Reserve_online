@@ -74,7 +74,7 @@
                     <th>预约电话</th>
                     <th>预约日期</th>
                     <th>预约时间</th>
-                    <th>操作</th> <!-- 新增“操作”列 -->
+                    <th>操作</th>
                 </tr>
             </thead>
             <tbody>
@@ -89,6 +89,11 @@
                     <td>
                         <form method="POST" action="{{ url_for('main.cancel_order', yuyue_id=order.yuyue_id) }}"
                             onsubmit="return confirm('确定要取消订单 {{ order.yuyue_id }} 吗？');">
+                            <!-- 添加隐藏字段，传递筛选参数 -->
+                            <input type="hidden" name="venue_group" value="{{ selected_group }}">
+                            <input type="hidden" name="venue" value="{{ selected_venue }}">
+                            <input type="hidden" name="date" value="{{ selected_date }}">
+                            <input type="hidden" name="time" value="{{ selected_time }}">
                             <button type="submit" class="btn btn-danger btn-sm">取消订单</button>
                         </form>
                     </td>

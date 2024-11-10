@@ -20,7 +20,7 @@ class Config:
     HEADERS = {
         "User-Agent": "Mozilla/5.0",
         "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-        "Referer": "http://cgyytyb.cpu.edu.cn/wap/yuyue"
+        "Referer": "https://cgyytyb.cpu.edu.cn/wap/yuyue"
     }
 
     # 场馆选项
